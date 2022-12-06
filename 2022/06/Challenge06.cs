@@ -1,6 +1,4 @@
-﻿using System.Text.RegularExpressions;
-
-namespace challenge
+﻿namespace challenge
 {
     class Challenge06
     {
@@ -33,7 +31,6 @@ namespace challenge
                     break;
                 } else ++index;
             }
-            index = 0;
             len = 14;
             while (true) {
                 string substring = content.Substring(index, len);
