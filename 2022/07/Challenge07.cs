@@ -41,29 +41,26 @@ namespace challenge
                 if (line.Equals("$ cd /")) {
                     // Ignore first line lol
                 } else if (line[0] == '$') {
-                    MatchCollection mcCd = regexCd.Matches(line);
-                    MatchCollection mcCdUp = regexCdUp.Matches(line);
-                    MatchCollection mcLs = regexLs.Matches(line);
-                    if (mcCd.Count > 0) {
-                        foreach (Match m in mcCd) {
-                            GroupCollection groups = m.Groups;
-                            string dirname = groups[1].Value;
+                    Match? matchCd = regexCd.Matches(line).Cast<Match>().FirstOrDefault();
+                    Match? matchCdUp = regexCdUp.Matches(line).Cast<Match>().FirstOrDefault();
+                    Match? matchLs = regexLs.Matches(line).Cast<Match>().FirstOrDefault();
+                    if (matchCd != null) {
+                        GroupCollection groups = matchCd.Groups;
+                        string dirname = groups[1].Value;
 
-                            cwd.Push(dirname);
-                        }
-                    } else if (mcCdUp.Count > 0 && cwd.Count > 1) {
+                        cwd.Push(dirname);
+                    } else if (matchCdUp != null && cwd.Count > 1) {
                         cwd.Pop();
-                    } else if (mcLs.Count > 0) {
+                    } else if (matchLs != null) {
                         // Directory listing next.
                     } else {
                         Console.WriteLine("Parsing input failed: " + line);
                     }
                 } else {
-                    MatchCollection mcDirListing = regexDirListing.Matches(line);
-                    MatchCollection mcFileListing = regexFileListing.Matches(line);
-                    if (mcDirListing.Count > 0) {
-                        foreach (Match m in mcDirListing) {
-                            GroupCollection groups = m.Groups;
+                    Match? matchDirListing = regexDirListing.Matches(line).Cast<Match>().FirstOrDefault();
+                    Match? matchFileListing = regexFileListing.Matches(line).Cast<Match>().FirstOrDefault();
+                    if (matchDirListing != null) {
+                            GroupCollection groups = matchDirListing.Groups;
                             string dirname = groups[1].Value;
 
                             string path = "";
@@ -80,24 +77,21 @@ namespace challenge
                                 return;
                             }
                             dirMap.Add(path + dirname + "/", newDirectory);
+                    } else if (matchFileListing != null) {
+                        GroupCollection groups = matchFileListing.Groups;
+                        int size = Int32.Parse(groups[1].Value);
+                        string file = groups[2].Value;
+
+                        string path = "";
+                        foreach (string d in cwd) {
+                            path = d + "/" + path;
                         }
-                    } else if (mcFileListing.Count > 0) {
-                        foreach (Match m in mcFileListing) {
-                            GroupCollection groups = m.Groups;
-                            int size = Int32.Parse(groups[1].Value);
-                            string file = groups[2].Value;
 
-                            string path = "";
-                            foreach (string d in cwd) {
-                                path = d + "/" + path;
-                            }
-
-                            Directory? current;
-                            if (dirMap.TryGetValue(path, out current)) {
-                                current.add(size);
-                            } else {
-                                Console.WriteLine("Couldn't find directory: " + path);
-                            }
+                        Directory? current;
+                        if (dirMap.TryGetValue(path, out current)) {
+                            current.add(size);
+                        } else {
+                            Console.WriteLine("Couldn't find directory: " + path);
                         }
                     } else {
                         Console.WriteLine("Parsing input failed: " + line);
