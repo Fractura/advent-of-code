@@ -60,23 +60,23 @@ namespace challenge
                     Match? matchDirListing = regexDirListing.Matches(line).Cast<Match>().FirstOrDefault();
                     Match? matchFileListing = regexFileListing.Matches(line).Cast<Match>().FirstOrDefault();
                     if (matchDirListing != null) {
-                            GroupCollection groups = matchDirListing.Groups;
-                            string dirname = groups[1].Value;
+                        GroupCollection groups = matchDirListing.Groups;
+                        string dirname = groups[1].Value;
 
-                            string path = "";
-                            foreach (string d in cwd) {
-                                path = d + "/" + path;
-                            }
+                        string path = "";
+                        foreach (string d in cwd) {
+                            path = d + "/" + path;
+                        }
 
-                            Directory? parent;
-                            Directory newDirectory;
-                            if (dirMap.TryGetValue(path, out parent)) {
-                                newDirectory = new Directory(parent);
-                            } else {
-                                Console.WriteLine("Couldn't find directory: " + path);
-                                return;
-                            }
-                            dirMap.Add(path + dirname + "/", newDirectory);
+                        Directory? parent;
+                        Directory newDirectory;
+                        if (dirMap.TryGetValue(path, out parent)) {
+                            newDirectory = new Directory(parent);
+                        } else {
+                            Console.WriteLine("Couldn't find directory: " + path);
+                            return;
+                        }
+                        dirMap.Add(path + dirname + "/", newDirectory);
                     } else if (matchFileListing != null) {
                         GroupCollection groups = matchFileListing.Groups;
                         int size = Int32.Parse(groups[1].Value);
