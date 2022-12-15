@@ -1,5 +1,3 @@
-﻿using System.Text.RegularExpressions;
-
 namespace challenge
 {
     class Challenge14
@@ -30,16 +28,6 @@ namespace challenge
 
             Console.WriteLine("Part 1 result: " + r.dropSandUntilYouNoLongerCan());
             Console.WriteLine("Part 2 result: " + r2.dropSandUntilYouNoLongerCan());
-        }
-
-        static void parseCommand(string line) {
-            Regex commandRegex = new Regex(@"^(group1)(group2)$");
-            Match? matchCommand = commandRegex.Matches(line).Cast<Match>().FirstOrDefault();
-            if (matchCommand == null) {
-                // Can't parse
-                return;
-            }
-            GroupCollection groups = matchCommand.Groups;
         }
     }
 
