@@ -4,8 +4,6 @@ namespace challenge
 {
     class Challenge15
     {
-        static List<Range> ranges = new List<Range>();
-
         static void Main(string[] args)
         {
             string filename;
@@ -23,19 +21,77 @@ namespace challenge
             StreamReader reader = File.OpenText(filename);
             string[] content = reader.ReadToEnd().Split("\r\n");
 
-            // Create object
-
+            List<Range> ranges = new List<Range>();
+            int yToCheck = 2000000;
+            HashSet<int> beaconsAtYToCheck = new HashSet<int>();
+            int minX = Int32.MaxValue;
+            int maxX = Int32.MinValue;
             foreach (string line in content) {
                 (int, int, int, int) command = parseCommand(line);
                 Console.WriteLine(command);
-                Range range = convertToRangeAt(10, command.Item1, command.Item2, command.Item3, command.Item4);
+                
+                Range range = convertToRangeAt(yToCheck, command.Item1, command.Item2, command.Item3, command.Item4);
+                Console.WriteLine("Range: " + range.min + " -> " + range.max);
                 if (range.min != -1) {
                     ranges.Add(range);
                 }
+
+                // Account for actual beacons in range.
+                if (command.Item4 == yToCheck) {
+                    beaconsAtYToCheck.Add(command.Item3);
+                }
+
+                maxX = Int32.Max(maxX, range.max);
+                minX = Int32.Min(minX, range.min);
             }
 
-            Console.WriteLine("Part 1 result: ???");
-            Console.WriteLine("Part 2 result: ???");
+            int result1 = 0;
+            for (int i = minX; i <= maxX; ++i) {
+                foreach (Range r in ranges) {
+                    if (i >= r.min && i <= r.max) {
+                        ++result1;
+                        break;
+                    }
+                }
+            }
+            result1 -= beaconsAtYToCheck.Count();
+
+            int x2 = -1;
+            int y2 = -1;
+            int yCheck = 0;
+            while (x2 == -1 && y2 == -1) {
+                List<Range> ranges2 = new List<Range>();
+                foreach (string line in content) {
+                    (int, int, int, int) command = parseCommand(line);
+                    
+                    Range range = convertToRangeAt(yCheck, command.Item1, command.Item2, command.Item3, command.Item4);
+                    if (range.min != -1) {
+                        ranges.Add(range);
+                    }
+
+                    maxX = 4000000;
+                    minX = 0;
+
+                    for (int i = minX; i <= maxX; ++i) {
+                        Boolean found = false;
+                        foreach (Range r in ranges) {
+                            if (i >= r.min && i <= r.max) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            x2 = i;
+                            y2 = yCheck;
+                        }
+                    }
+                }
+                ++yCheck;
+            }
+
+            int result2 = x2 * 4000000 + y2;
+            Console.WriteLine("Part 1 result: " + result1);
+            Console.WriteLine("Part 2 result: " + result2);
         }
 
         static (int, int, int, int) parseCommand(string line) {
