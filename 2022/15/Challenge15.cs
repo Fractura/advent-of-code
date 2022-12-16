@@ -20,18 +20,21 @@ namespace challenge
 
             StreamReader reader = File.OpenText(filename);
             string[] content = reader.ReadToEnd().Split("\r\n");
+            List<(int, int, int, int)> commands = new List<(int, int, int, int)>();
+            foreach (string line in content) {
+                commands.Add(parseCommand(line));
+            }
 
             List<Range> ranges = new List<Range>();
             int yToCheck = 2000000;
             HashSet<int> beaconsAtYToCheck = new HashSet<int>();
             int minX = Int32.MaxValue;
             int maxX = Int32.MinValue;
-            foreach (string line in content) {
-                (int, int, int, int) command = parseCommand(line);
-                Console.WriteLine(command);
+            foreach ((int, int, int, int) command in commands) {
+                //Console.WriteLine(command);
                 
                 Range range = convertToRangeAt(yToCheck, command.Item1, command.Item2, command.Item3, command.Item4);
-                Console.WriteLine("Range: " + range.min + " -> " + range.max);
+                //Console.WriteLine("Range: " + range.min + " -> " + range.max);
                 if (range.min != -1) {
                     ranges.Add(range);
                 }
@@ -56,40 +59,58 @@ namespace challenge
             }
             result1 -= beaconsAtYToCheck.Count();
 
-            int x2 = -1;
-            int y2 = -1;
-            int yCheck = 0;
-            while (x2 == -1 && y2 == -1) {
-                List<Range> ranges2 = new List<Range>();
-                foreach (string line in content) {
-                    (int, int, int, int) command = parseCommand(line);
+            List<BeaconRange> beaconRanges = new List<BeaconRange>();
+            foreach ((int, int, int, int) command in commands) {
+                beaconRanges.Add(convertToBeaconRange(command.Item1, command.Item2, command.Item3, command.Item4));
+            }
+
+            Point solution = new Point(-1, -1);
+
+            int lowerBounds = 0;
+            int upperBounds = 4000000;
+            HashSet<Point> relevantPoints = new();
+            for (int i = 0; i < beaconRanges.Count; i++) {
+                var br_1 = beaconRanges[i];
+
+                for(int j = i+1; j < beaconRanges.Count; j++) {
+                    var br_2 = beaconRanges[j];
                     
-                    Range range = convertToRangeAt(yCheck, command.Item1, command.Item2, command.Item3, command.Item4);
-                    if (range.min != -1) {
-                        ranges.Add(range);
-                    }
+                    if(distance(new Point(br_1.x, br_1.y), new Point(br_2.x, br_2.y)) == br_1.r + br_2.r + 2) {
+                        int endy = Math.Min(br_1.y + br_1.r, br_2.y + br_2.r);
+                        int starty = Math.Max(br_1.y - br_1.r, br_2.y - br_2.r);
 
-                    maxX = 4000000;
-                    minX = 0;
+                        int startx = Math.Max(br_1.x - br_1.r, br_2.x - br_2.r);
+                        int endx = Math.Min(br_1.x + br_1.r, br_2.x + br_2.r);
 
-                    for (int i = minX; i <= maxX; ++i) {
-                        Boolean found = false;
-                        foreach (Range r in ranges) {
-                            if (i >= r.min && i <= r.max) {
-                                found = true;
-                                break;
+                        for (int y = starty; y < endy; y++) {
+                            int x1 = br_1.x + (br_1.r + 1 - Math.Abs(y - br_1.y));
+                            int x2 = br_1.x - (br_1.r + 1 - Math.Abs(y - br_1.y));
+
+                            if (x1 >= lowerBounds && x1 <= upperBounds && x1 >= startx && x1 <= endx) {
+                                relevantPoints.Add(new Point(x1, y));
                             }
-                        }
-                        if (!found) {
-                            x2 = i;
-                            y2 = yCheck;
+                            if (x2 >= lowerBounds && x2 <= upperBounds && x2 >= startx && x2 <= endx) {
+                                relevantPoints.Add(new Point(x2, y));
+                            }
                         }
                     }
                 }
-                ++yCheck;
+            }
+            foreach (Point p in relevantPoints) {
+                Boolean possibleMatch = true;
+                foreach (BeaconRange br in beaconRanges) {
+                    if (withinBeaconRange(p.x, p.y, br)) {
+                        possibleMatch = false;
+                        break;
+                    }
+                }
+                if (possibleMatch) {
+                    solution = p;
+                    break;
+                }
             }
 
-            int result2 = x2 * 4000000 + y2;
+            Int64 result2 = solution.x * 4000000 + solution.y;
             Console.WriteLine("Part 1 result: " + result1);
             Console.WriteLine("Part 2 result: " + result2);
         }
@@ -103,6 +124,19 @@ namespace challenge
             }
             GroupCollection groups = matchCommand.Groups;
             return (Int32.Parse(groups[1].Value), Int32.Parse(groups[2].Value), Int32.Parse(groups[3].Value), Int32.Parse(groups[4].Value));
+        }
+
+        static BeaconRange convertToBeaconRange(int xCenter, int yCenter, int xBeacon, int yBeacon) {
+            int r = calculateRadius(xCenter, yCenter, xBeacon, yBeacon);
+            return new BeaconRange(xCenter, yCenter, r);
+        }
+
+        static Int64 distance(Point a, Point b) {
+            return Int64.Abs(a.x - b.x) + Int64.Abs(a.y - b.y);
+        }
+
+        static Boolean withinBeaconRange(Int64 x, Int64 y, BeaconRange br) {
+            return distance(new Point(br.x, br.y), new Point(x, y)) <= br.r;
         }
 
         static Range convertToRangeAt(int y, int xCenter, int yCenter, int xBeacon, int yBeacon) {
@@ -121,6 +155,14 @@ namespace challenge
         }
     }
 
+    struct Point {
+        public Int64 x;
+        public Int64 y;
+        public Point(Int64 x, Int64 y) {
+            this.x = x; this.y = y;
+        }
+    }
+
     struct Range {
         public int min;
         public int max;
@@ -128,6 +170,16 @@ namespace challenge
         public Range(int min, int max) {
             this.min = min;
             this.max = max;
+        }
+    }
+
+    struct BeaconRange {
+        public int x;
+        public int y;
+        public int r;
+
+        public BeaconRange(int x, int y, int r) {
+            this.x = x; this.y = y; this.r = r;
         }
     }
 }
