@@ -30,31 +30,19 @@ namespace challenge
             string[] contentEx = ReadFile("example.input");
             string[] content = ReadFile("my.input");
 
-            Console.WriteLine($"Example: {GetTotalValue(contentEx)}");
-            Console.WriteLine($"Part 1 : {GetTotalValue(content)}");
-            Console.WriteLine($"Part 2 : {getTotalValueWords(content)}");
+            Console.WriteLine($"Example: {GetTotalValue(contentEx, digitRegex())}");
+            Console.WriteLine($"Part 1 : {GetTotalValue(content, digitRegex())}");
+            Console.WriteLine($"Part 2 : {GetTotalValue(content, wordRegex())}");
         }
 
-        static Int32 GetTotalValue(string[] input)
+        static Int32 GetTotalValue(string[] input, Regex rx)
         {
             Int32 sum = 0;
             foreach (string line in input) {
-                (Int32,Int32) digits = GetFirstAndLast(line, digitRegex());
+                (Int32,Int32) digits = GetFirstAndLast(line, rx);
                 Int32 value = ConcatAndMerge(digits);
                 sum += value;
                 if (debug) Console.WriteLine($"LnA={line},digits={digits.Item1},{digits.Item2},value={value},sum={sum}");
-            }
-            return sum;
-        }
-
-        static Int32 getTotalValueWords(string[] input)
-        {
-            Int32 sum = 0;
-            foreach (string line in input) {
-                (Int32,Int32) digits = GetFirstAndLast(line, wordRegex());
-                Int32 value = ConcatAndMerge(digits);
-                sum += value;
-                if (!debug) Console.WriteLine($"LnB={line},digits={digits.Item1},{digits.Item2},value={value},sum={sum}");
             }
             return sum;
         }
