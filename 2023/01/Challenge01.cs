@@ -39,7 +39,7 @@ namespace challenge
         {
             Int32 sum = 0;
             foreach (string line in input) {
-                (Int32,Int32) digits = GetFirstAndLast(line);
+                (Int32,Int32) digits = GetFirstAndLast(line, digitRegex());
                 Int32 value = ConcatAndMerge(digits);
                 sum += value;
                 if (debug) Console.WriteLine($"LnA={line},digits={digits.Item1},{digits.Item2},value={value},sum={sum}");
@@ -51,50 +51,24 @@ namespace challenge
         {
             Int32 sum = 0;
             foreach (string line in input) {
-                (Int32,Int32) digits = GetFirstAndLastWords(line);
+                (Int32,Int32) digits = GetFirstAndLast(line, wordRegex());
                 Int32 value = ConcatAndMerge(digits);
                 sum += value;
-                if (debug) Console.WriteLine($"LnB={line},digits={digits.Item1},{digits.Item2},value={value},sum={sum}");
+                if (!debug) Console.WriteLine($"LnB={line},digits={digits.Item1},{digits.Item2},value={value},sum={sum}");
             }
             return sum;
         }
 
-        static (Int32, Int32) GetFirstAndLast(string line) {
-            Regex commandRegex = digitRegex();
-            Match? matchCommand = commandRegex.Matches(line).Cast<Match>().FirstOrDefault();
-            if (matchCommand == null) {
+        static (Int32, Int32) GetFirstAndLast(string line, Regex rx) {
+            MatchCollection matches = rx.Matches(line);
+            if (matches.Count == 0) {
                 // Can't parse
                 Console.WriteLine($"Could not parse line: {line}");
                 return (0,0);
             }
-            GroupCollection groups = matchCommand.Groups;
-            if (groups[2].Length == 0) {
-                Int32 v = Int32.Parse(groups[1].ToString());
-                return (v,v);
-            } else {
-                Int32 l = Int32.Parse(groups[2].ToString());
-                Int32 r = Int32.Parse(groups[3].ToString());
-                return (l,r);
-            }
-        }
-
-        static (Int32, Int32) GetFirstAndLastWords(string line) {
-            Regex commandRegex = wordRegex();
-            Match? matchCommand = commandRegex.Matches(line).Cast<Match>().FirstOrDefault();
-            if (matchCommand == null) {
-                // Can't parse
-                Console.WriteLine($"Could not parse line: {line}");
-                return (0,0);
-            }
-            GroupCollection groups = matchCommand.Groups;
-            if (groups[2].Length == 0) {
-                Int32 v = ParseWord(groups[1].ToString());
-                return (v,v);
-            } else {
-                Int32 l = ParseWord(groups[2].ToString());
-                Int32 r = ParseWord(groups[3].ToString());
-                return (l,r);
-            }
+            Int32 first = ParseWord(matches[0].Groups[1].Value);
+            Int32 last = ParseWord(matches[^1].Groups[1].Value);
+            return (first,last);
         }
 
         static Int32 ConcatAndMerge((Int32, Int32) value) {
@@ -118,10 +92,10 @@ namespace challenge
             };
         }
 
-        [GeneratedRegex("^\\D*((\\d).*(\\d)|\\d)\\D*$")]
+        [GeneratedRegex("\\d")]
         private static partial Regex digitRegex();
 
-        [GeneratedRegex("^\\D*?((\\d|zero|one|two|three|four|five|six|seven|eight|nine).*(\\d|zero|one|two|three|four|five|six|seven|eight|nine)|(\\d|zero|one|two|three|four|five|six|seven|eight|nine))\\D*$")]
+        [GeneratedRegex("(?=(\\d|zero|one|two|three|four|five|six|seven|eight|nine))")]
         private static partial Regex wordRegex();
     }
 }
