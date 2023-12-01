@@ -6,6 +6,7 @@ output.txt
 *.obj
 *.pdb
 *.csproj
+*.sln
 *.vscode*
 bin/
 obj/
