@@ -1,5 +1,13 @@
 *.exe
 *.ilk
 *.input
+input.txt
+output.txt
 *.obj
 *.pdb
+*.csproj
+*.vscode*
+bin/
+obj/
+
+2022/11/states.puml
