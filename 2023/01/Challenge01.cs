@@ -30,17 +30,17 @@ namespace challenge
             string[] contentEx = ReadFile("example.input");
             string[] content = ReadFile("my.input");
 
-            Console.WriteLine($"Example: {getTotalValue(contentEx)}");
-            Console.WriteLine($"Part 1 : {getTotalValue(content)}");
+            Console.WriteLine($"Example: {GetTotalValue(contentEx)}");
+            Console.WriteLine($"Part 1 : {GetTotalValue(content)}");
             Console.WriteLine($"Part 2 : {getTotalValueWords(content)}");
         }
 
-        static Int32 getTotalValue(string[] input)
+        static Int32 GetTotalValue(string[] input)
         {
             Int32 sum = 0;
             foreach (string line in input) {
-                (Int32,Int32) digits = getFirstAndLast(line);
-                Int32 value = concatAndMerge(digits);
+                (Int32,Int32) digits = GetFirstAndLast(line);
+                Int32 value = ConcatAndMerge(digits);
                 sum += value;
                 if (debug) Console.WriteLine($"LnA={line},digits={digits.Item1},{digits.Item2},value={value},sum={sum}");
             }
@@ -51,15 +51,15 @@ namespace challenge
         {
             Int32 sum = 0;
             foreach (string line in input) {
-                (Int32,Int32) digits = getFirstAndLastWords(line);
-                Int32 value = concatAndMerge(digits);
+                (Int32,Int32) digits = GetFirstAndLastWords(line);
+                Int32 value = ConcatAndMerge(digits);
                 sum += value;
                 if (debug) Console.WriteLine($"LnB={line},digits={digits.Item1},{digits.Item2},value={value},sum={sum}");
             }
             return sum;
         }
 
-        static (Int32, Int32) getFirstAndLast(string line) {
+        static (Int32, Int32) GetFirstAndLast(string line) {
             Regex commandRegex = digitRegex();
             Match? matchCommand = commandRegex.Matches(line).Cast<Match>().FirstOrDefault();
             if (matchCommand == null) {
@@ -78,7 +78,7 @@ namespace challenge
             }
         }
 
-        static (Int32, Int32) getFirstAndLastWords(string line) {
+        static (Int32, Int32) GetFirstAndLastWords(string line) {
             Regex commandRegex = wordRegex();
             Match? matchCommand = commandRegex.Matches(line).Cast<Match>().FirstOrDefault();
             if (matchCommand == null) {
@@ -97,7 +97,7 @@ namespace challenge
             }
         }
 
-        static Int32 concatAndMerge((Int32, Int32) value) {
+        static Int32 ConcatAndMerge((Int32, Int32) value) {
             return Int32.Parse($"{value.Item1}{value.Item2}");
         }
 
