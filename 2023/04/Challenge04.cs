@@ -2,7 +2,7 @@
 
 namespace challenge
 {
-    static partial class Challenge03
+    static partial class Challenge04
     {
         static bool debug = false;
 
