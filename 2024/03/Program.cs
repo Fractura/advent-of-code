@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace challenge
 {
-    static partial class Challenge01
+    static partial class Challenge03
     {
         static readonly bool debug = false;
 
