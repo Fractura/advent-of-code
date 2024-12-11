@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace challenge
 {
-    static partial class ChallengeXX
+    static partial class Challenge11
     {
         static string[] ReadFile(string filename)
         {
