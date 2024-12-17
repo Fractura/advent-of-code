@@ -245,7 +245,7 @@ namespace challenge
             Console.WriteLine($"Part 1 : {PartOne(maze)}");
             Debug.Assert(PartTwo(mazeExample1) == 45);
             Debug.Assert(PartTwo(mazeExample2) == 64);
-            Console.WriteLine($"Part 1 : {PartTwo(maze)}");
+            Console.WriteLine($"Part 2 : {PartTwo(maze)}");
         }
 
         static Int32 PartOne(Maze maze)
