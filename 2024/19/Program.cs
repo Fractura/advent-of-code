@@ -59,7 +59,7 @@ namespace challenge
             }
 
             public Int64 GetAllPossibleDesignOptions() {
-                return designs.Sum(GetPossibleDesignOptions);
+                return designs.AsParallel().Sum(GetPossibleDesignOptions);
             }
 
             private Int64 GetPossibleDesignOptions(string design) {
