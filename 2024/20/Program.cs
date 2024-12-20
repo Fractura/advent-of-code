@@ -97,7 +97,7 @@ namespace challenge
                         CalculatePotentialCheats2((x,y), range, minEff);
                     }
                 }
-                return cheatEfficiency2.Where(x => x.Key >= minEff).Select(x => x.Value).Sum();
+                return cheatEfficiency2.Select(x => x.Value).Sum();
             }
 
             private void CalculatePotentialCheats((int x, int y) p) {
